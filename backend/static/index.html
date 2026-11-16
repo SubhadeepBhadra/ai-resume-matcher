@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Resume Matcher & Candidate Ranking System</title>
+  <title>MatchWise AI — Resume Matching & Candidate Ranking</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons -->
@@ -18,22 +18,19 @@
 
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
-            sans: ['Inter', 'sans-serif'],
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
-            brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
+            primary: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
             }
           }
         }
@@ -42,45 +39,37 @@
   </script>
   <style>
     body {
-      background-color: #0b0f19;
-      color: #e2e8f0;
-      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
-      background: #1e293b;
+      background: #f1f5f9;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #475569;
-      border-radius: 3px;
+      background: #cbd5e1;
+      border-radius: 4px;
     }
-    .glass-card {
-      background: rgba(17, 24, 39, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-nav {
-      background: rgba(11, 15, 25, 0.85);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
     }
   </style>
 </head>
-<body class="min-h-screen custom-scrollbar">
+<body class="min-h-screen bg-slate-50 text-slate-900 custom-scrollbar antialiased">
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useMemo, useRef } = React;
+    const { useState, useEffect, useMemo } = React;
 
-    // Helper to format scores
     const getScoreBadgeClass = (score) => {
-      if (score >= 80) return "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-      if (score >= 65) return "bg-blue-500/10 text-blue-400 border border-blue-500/20";
-      if (score >= 50) return "bg-amber-500/10 text-amber-400 border border-amber-500/20";
-      return "bg-rose-500/10 text-rose-400 border border-rose-500/20";
+      if (score >= 80) return "bg-emerald-50 text-emerald-700 border border-emerald-200/80";
+      if (score >= 65) return "bg-indigo-50 text-indigo-700 border border-indigo-200/80";
+      if (score >= 50) return "bg-amber-50 text-amber-700 border border-amber-200/80";
+      return "bg-rose-50 text-rose-700 border border-rose-200/80";
     };
 
     function App() {
@@ -138,7 +127,7 @@
           .catch(err => console.error("Sample JDs error:", err));
       }, []);
 
-      // Trigger icons rendering after DOM updates
+      // Refresh icons on state change
       useEffect(() => {
         if (window.lucide) {
           window.lucide.createIcons();
@@ -270,7 +259,6 @@
 
         setIsMatching(true);
         try {
-          // If JD not parsed yet, parse it on the fly
           let targetJD = parsedJD;
           if (!targetJD) {
             const jdRes = await fetch("/api/jd/analyze", {
@@ -354,62 +342,70 @@
       }, [rankedCandidates, searchQuery, sortField, sortAsc]);
 
       return (
-        <div className="min-h-screen flex flex-col">
-          {/* Header */}
-          <header className="glass-nav sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                <i data-lucide="sparkles" className="w-5 h-5 text-white"></i>
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-white tracking-tight flex items-center space-x-2">
-                  <span>MatchWise AI</span>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">NLP & Embeddings</span>
-                </h1>
-                <p className="text-xs text-slate-400">AI-Based Resume Matching & Candidate Ranking Platform</p>
-              </div>
-            </div>
-
-            {/* Model & Demo Shortcut */}
-            <div className="flex items-center space-x-4">
-              <div className="hidden md:flex items-center space-x-2 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 text-xs text-slate-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                <span>AI Engine:</span>
-                <span className="font-mono text-blue-400 font-medium">Sentence-Transformers (all-MiniLM-L6-v2)</span>
+        <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800">
+          
+          {/* Top Header */}
+          <header className="bg-white border-b border-slate-200 sticky top-0 z-40 px-6 py-3.5 shadow-xs">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              
+              {/* Brand Logo */}
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-sm shadow-indigo-200">
+                  <i data-lucide="sparkles" className="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base font-bold text-slate-900 tracking-tight">MatchWise AI</span>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                      NLP & Embeddings
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500">AI-Based Resume Matching & Candidate Ranking System</p>
+                </div>
               </div>
 
-              <button
-                onClick={() => handleLoadDemoDataset("jd-1")}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-lg font-medium text-xs shadow-lg shadow-blue-600/20 flex items-center space-x-2 transition-all cursor-pointer"
-              >
-                <i data-lucide="play" className="w-4 h-4 fill-white"></i>
-                <span>Load 12 Sample Resumes & Demo</span>
-              </button>
+              {/* Status and Action Buttons */}
+              <div className="flex items-center space-x-3">
+                <div className="hidden md:flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 text-xs text-slate-600">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="text-slate-500">Model:</span>
+                  <span className="font-mono text-indigo-600 font-semibold">SentenceTransformers (all-MiniLM-L6-v2)</span>
+                </div>
+
+                <button
+                  onClick={() => handleLoadDemoDataset("jd-1")}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-semibold text-xs shadow-xs hover:shadow-md transition-all flex items-center space-x-2 cursor-pointer"
+                >
+                  <i data-lucide="play" className="w-3.5 h-3.5 fill-white"></i>
+                  <span>Load 12 Sample Resumes & Demo</span>
+                </button>
+              </div>
+
             </div>
           </header>
 
-          {/* Navigation Bar */}
-          <div className="border-b border-slate-800/80 bg-slate-950/40 px-6">
-            <div className="flex space-x-6">
+          {/* Navigation Sub-Header */}
+          <div className="bg-white border-b border-slate-200 px-6">
+            <div className="max-w-7xl mx-auto flex space-x-8">
               {[
                 { id: "jd", label: "1. Job Description", icon: "file-text", badge: parsedJD ? "Analyzed" : null },
-                { id: "resumes", label: "2. Batch Resumes", icon: "upload-cloud", badge: uploadedResumes.length > 0 ? `${uploadedResumes.length} Uploaded` : null },
-                { id: "match", label: "3. Matching Config", icon: "cpu", badge: null },
+                { id: "resumes", label: "2. Batch Resumes", icon: "upload-cloud", badge: uploadedResumes.length > 0 ? `${uploadedResumes.length} Loaded` : null },
+                { id: "match", label: "3. Matching Engine", icon: "sliders", badge: null },
                 { id: "ranking", label: "4. Candidate Ranking", icon: "bar-chart-3", badge: rankedCandidates.length > 0 ? `${rankedCandidates.length} Ranked` : null }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`py-3.5 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-colors cursor-pointer ${
+                  className={`py-3.5 px-1 border-b-2 font-medium text-sm flex items-center space-x-2 transition-all cursor-pointer ${
                     activeTab === tab.id
-                      ? "border-blue-500 text-blue-400 font-semibold"
-                      : "border-transparent text-slate-400 hover:text-slate-200"
+                      ? "border-indigo-600 text-indigo-600 font-semibold"
+                      : "border-transparent text-slate-500 hover:text-slate-800"
                   }`}
                 >
                   <i data-lucide={tab.icon} className="w-4 h-4"></i>
                   <span>{tab.label}</span>
                   {tab.badge && (
-                    <span className="text-[10px] bg-slate-800 text-blue-300 px-2 py-0.5 rounded-full border border-slate-700">
+                    <span className="text-[10px] bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded-full border border-slate-200">
                       {tab.badge}
                     </span>
                   )}
@@ -418,39 +414,42 @@
             </div>
           </div>
 
-          {/* Main Content Area */}
+          {/* Main Workspace Body */}
           <main className="flex-1 p-6 max-w-7xl mx-auto w-full">
             
             {/* TAB 1: JOB DESCRIPTION INPUT */}
             {activeTab === "jd" && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2 space-y-4">
-                  <div className="glass-card p-5 rounded-2xl">
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center space-x-2">
-                        <i data-lucide="file-edit" className="w-5 h-5 text-blue-400"></i>
-                        <h2 className="text-base font-semibold text-white">Paste or Edit Job Description</h2>
+                      <div>
+                        <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                          <i data-lucide="file-edit" className="w-5 h-5 text-indigo-600"></i>
+                          <span>Paste or Upload Job Description</span>
+                        </h2>
+                        <p className="text-xs text-slate-500 mt-0.5">Define your role requirements, required skills, and target seniority.</p>
                       </div>
-                      
+
                       {/* File upload input */}
-                      <label className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg border border-slate-700 cursor-pointer flex items-center space-x-1.5 transition-colors">
-                        <i data-lucide="upload" className="w-3.5 h-3.5"></i>
-                        <span>Upload JD (PDF/DOCX)</span>
+                      <label className="text-xs bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium px-3.5 py-2 rounded-lg border border-slate-200 cursor-pointer flex items-center space-x-1.5 transition-colors shadow-2xs">
+                        <i data-lucide="upload" className="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>Upload File (PDF/DOCX)</span>
                         <input type="file" accept=".pdf,.docx,.txt" className="hidden" onChange={handleJDFileUpload} />
                       </label>
                     </div>
 
-                    {/* Preset selection pills */}
-                    <div className="mb-3 flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
-                      <span className="text-slate-400 whitespace-nowrap">Load Preset Role:</span>
+                    {/* Presets */}
+                    <div className="mb-4 flex items-center space-x-2 overflow-x-auto pb-1 text-xs">
+                      <span className="text-slate-500 font-medium whitespace-nowrap">Load Preset Role:</span>
                       {sampleJDs.map(jd => (
                         <button
                           key={jd.id}
                           onClick={() => handleSelectPresetJD(jd.id)}
-                          className={`px-3 py-1 rounded-md transition-all whitespace-nowrap cursor-pointer ${
+                          className={`px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer font-medium ${
                             selectedJdId === jd.id
-                              ? "bg-blue-600/30 text-blue-300 border border-blue-500/40 font-medium"
-                              : "bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-slate-700"
+                              ? "bg-indigo-50 text-indigo-700 border border-indigo-200 shadow-2xs"
+                              : "bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200"
                           }`}
                         >
                           {jd.title}
@@ -463,18 +462,18 @@
                       onChange={(e) => setJdText(e.target.value)}
                       placeholder="Paste Job Description text here..."
                       rows={14}
-                      className="w-full bg-slate-900/90 text-slate-200 text-xs sm:text-sm font-mono p-4 rounded-xl border border-slate-800 focus:outline-none focus:border-blue-500 resize-none custom-scrollbar"
+                      className="w-full bg-slate-50 text-slate-800 text-xs sm:text-sm font-mono p-4 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white resize-none custom-scrollbar transition-colors leading-relaxed"
                     ></textarea>
 
                     <div className="mt-4 flex justify-end">
                       <button
                         onClick={handleAnalyzeJD}
                         disabled={isParsingJD || !jdText.trim()}
-                        className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-xl text-sm font-medium flex items-center space-x-2 shadow-lg shadow-blue-600/20 transition-all cursor-pointer"
+                        className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold flex items-center space-x-2 shadow-xs transition-all cursor-pointer"
                       >
                         {isParsingJD ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                             <span>Extracting Requirements...</span>
                           </>
                         ) : (
@@ -490,37 +489,37 @@
 
                 {/* Extracted JD Info Card */}
                 <div className="space-y-4">
-                  <div className="glass-card p-5 rounded-2xl h-full flex flex-col">
-                    <div className="flex items-center space-x-2 mb-4">
-                      <i data-lucide="check-circle-2" className="w-5 h-5 text-emerald-400"></i>
-                      <h3 className="text-base font-semibold text-white">Extracted JD Requirements</h3>
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs h-full flex flex-col">
+                    <div className="flex items-center space-x-2 mb-4 pb-3 border-b border-slate-100">
+                      <i data-lucide="check-circle-2" className="w-5 h-5 text-emerald-600"></i>
+                      <h3 className="text-base font-bold text-slate-900">Extracted Requirements</h3>
                     </div>
 
                     {parsedJD ? (
-                      <div className="space-y-5 flex-1 text-xs">
-                        <div className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
-                          <span className="text-slate-400 uppercase tracking-wider text-[10px] font-semibold block mb-1">Target Position</span>
-                          <span className="text-sm font-bold text-white block">{parsedJD.title}</span>
+                      <div className="space-y-4 flex-1 text-xs">
+                        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                          <span className="text-slate-500 uppercase tracking-wider text-[10px] font-bold block mb-1">Target Position</span>
+                          <span className="text-sm font-bold text-slate-900 block">{parsedJD.title}</span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
-                            <span className="text-slate-400 uppercase tracking-wider text-[10px] font-semibold block mb-1">Required Exp</span>
-                            <span className="text-sm font-bold text-blue-400">{parsedJD.min_experience_years}+ Years</span>
+                          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                            <span className="text-slate-500 uppercase tracking-wider text-[10px] font-bold block mb-1">Required Exp</span>
+                            <span className="text-sm font-bold text-indigo-600">{parsedJD.min_experience_years}+ Years</span>
                           </div>
-                          <div className="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
-                            <span className="text-slate-400 uppercase tracking-wider text-[10px] font-semibold block mb-1">Education</span>
-                            <span className="text-sm font-bold text-indigo-400 truncate">{parsedJD.required_education}</span>
+                          <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                            <span className="text-slate-500 uppercase tracking-wider text-[10px] font-bold block mb-1">Education</span>
+                            <span className="text-sm font-bold text-slate-800 truncate">{parsedJD.required_education}</span>
                           </div>
                         </div>
 
                         <div>
-                          <span className="text-slate-400 uppercase tracking-wider text-[10px] font-semibold block mb-2">
-                            Extracted Skills ({parsedJD.required_skills?.length || 0})
+                          <span className="text-slate-500 uppercase tracking-wider text-[10px] font-bold block mb-2">
+                            Extracted Core Skills ({parsedJD.required_skills?.length || 0})
                           </span>
                           <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto custom-scrollbar p-1">
                             {parsedJD.required_skills?.map((skill, idx) => (
-                              <span key={idx} className="bg-blue-900/30 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-md font-medium">
+                              <span key={idx} className="bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-2.5 py-0.5 rounded-md font-semibold text-[11px]">
                                 {skill}
                               </span>
                             ))}
@@ -528,12 +527,12 @@
                         </div>
 
                         {parsedJD.responsibilities && parsedJD.responsibilities.length > 0 && (
-                          <div>
-                            <span className="text-slate-400 uppercase tracking-wider text-[10px] font-semibold block mb-2">Key Responsibilities</span>
-                            <ul className="space-y-1.5 text-slate-300 text-[11px] max-h-36 overflow-y-auto custom-scrollbar">
+                          <div className="pt-2">
+                            <span className="text-slate-500 uppercase tracking-wider text-[10px] font-bold block mb-2">Key Responsibilities</span>
+                            <ul className="space-y-1.5 text-slate-600 text-[11px] max-h-36 overflow-y-auto custom-scrollbar">
                               {parsedJD.responsibilities.map((r, i) => (
                                 <li key={i} className="flex items-start space-x-2">
-                                  <span className="text-blue-500 font-bold">•</span>
+                                  <span className="text-indigo-600 font-bold">•</span>
                                   <span>{r}</span>
                                 </li>
                               ))}
@@ -541,10 +540,10 @@
                           </div>
                         )}
 
-                        <div className="pt-2">
+                        <div className="pt-4 mt-auto">
                           <button
                             onClick={() => setActiveTab("resumes")}
-                            className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-blue-300 rounded-lg font-medium text-xs flex items-center justify-center space-x-1 border border-slate-700 cursor-pointer"
+                            className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-semibold text-xs flex items-center justify-center space-x-1 transition-all cursor-pointer shadow-xs"
                           >
                             <span>Proceed to Resume Upload</span>
                             <i data-lucide="arrow-right" className="w-3.5 h-3.5"></i>
@@ -552,9 +551,11 @@
                         </div>
                       </div>
                     ) : (
-                      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-500">
-                        <i data-lucide="file-question" className="w-12 h-12 text-slate-600 mb-2"></i>
-                        <p className="text-sm">Click "Analyze Job Description" to extract structured requirements and skills ontology.</p>
+                      <div className="flex-1 flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                        <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-3 text-slate-400">
+                          <i data-lucide="file-question" className="w-6 h-6"></i>
+                        </div>
+                        <p className="text-xs text-slate-500 max-w-xs">Click "Analyze Job Description" to parse requirements and view skills taxonomy.</p>
                       </div>
                     )}
                   </div>
@@ -565,22 +566,22 @@
             {/* TAB 2: RESUME BATCH UPLOAD */}
             {activeTab === "resumes" && (
               <div className="space-y-6">
-                <div className="glass-card p-6 rounded-2xl">
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <div>
-                      <h2 className="text-base font-semibold text-white flex items-center space-x-2">
-                        <span>Batch Resume Upload (PDF & DOCX)</span>
-                        <span className="text-xs bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">
-                          Min 10 Resumes Supported
+                      <h2 className="text-base font-bold text-slate-900 flex items-center space-x-2">
+                        <span>Batch Resume Ingestion</span>
+                        <span className="text-xs bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full border border-slate-200 font-semibold">
+                          10+ Resumes Batch Enabled
                         </span>
                       </h2>
-                      <p className="text-xs text-slate-400 mt-1">Upload candidate resumes in batch. The system automatically parses names, emails, experience durations, and technical competencies.</p>
+                      <p className="text-xs text-slate-500 mt-1">Upload resumes in batch (PDF and DOCX). The system extracts contact details, experience, education, and skills.</p>
                     </div>
 
                     <div className="flex items-center space-x-3">
                       <button
                         onClick={() => handleLoadDemoDataset(selectedJdId)}
-                        className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-blue-300 border border-slate-700 rounded-xl text-xs font-medium flex items-center space-x-2 transition-all cursor-pointer"
+                        className="px-3.5 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200/80 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all cursor-pointer shadow-2xs"
                       >
                         <i data-lucide="files" className="w-4 h-4"></i>
                         <span>Load 12 Sample Resumes</span>
@@ -588,23 +589,23 @@
                       {uploadedResumes.length > 0 && (
                         <button
                           onClick={() => setUploadedResumes([])}
-                          className="px-3 py-2 bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-800/40 rounded-xl text-xs font-medium transition-all cursor-pointer"
+                          className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-rose-600 border border-slate-200 rounded-xl text-xs font-medium transition-all cursor-pointer"
                         >
-                          Clear
+                          Clear All
                         </button>
                       )}
                     </div>
                   </div>
 
-                  {/* Drag-and-drop / File upload zone */}
-                  <label className="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-900/40 group">
-                    <div className="w-14 h-14 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                  {/* Upload Drop Zone */}
+                  <label className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer transition-colors bg-slate-50 hover:bg-white group">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-2xs">
                       <i data-lucide="upload-cloud" className="w-7 h-7"></i>
                     </div>
-                    <span className="text-sm font-semibold text-white">Click or drag & drop candidate resumes</span>
-                    <span className="text-xs text-slate-400 mt-1">Supports PDF (.pdf) and Microsoft Word (.docx) formats</span>
-                    <span className="text-[11px] text-blue-400 font-mono mt-2 bg-blue-950/40 px-3 py-1 rounded-full border border-blue-900/50">
-                      Multi-file batch upload enabled
+                    <span className="text-sm font-bold text-slate-800">Select or Drag & Drop Resumes</span>
+                    <span className="text-xs text-slate-500 mt-1">Supports Adobe PDF (.pdf) and Microsoft Word (.docx)</span>
+                    <span className="text-[11px] text-indigo-700 font-medium mt-2 bg-indigo-50 px-3 py-0.5 rounded-full border border-indigo-200">
+                      Batch extraction enabled
                     </span>
                     <input
                       type="file"
@@ -616,9 +617,9 @@
                   </label>
 
                   {isUploading && (
-                    <div className="mt-4 p-3 bg-blue-950/30 border border-blue-800/40 rounded-xl flex items-center space-x-3 text-xs text-blue-300">
-                      <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin"></div>
-                      <span>{uploadProgress}</span>
+                    <div className="mt-4 p-3 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center space-x-3 text-xs text-indigo-700">
+                      <div className="w-4 h-4 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                      <span className="font-medium">{uploadProgress}</span>
                     </div>
                   )}
                 </div>
@@ -627,12 +628,12 @@
                 {uploadedResumes.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-semibold text-white flex items-center space-x-2">
-                        <span>Parsed Candidates ({uploadedResumes.length})</span>
+                      <h3 className="text-sm font-bold text-slate-900">
+                        Parsed Candidates ({uploadedResumes.length})
                       </h3>
                       <button
                         onClick={() => setActiveTab("match")}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-medium flex items-center space-x-2 transition-all cursor-pointer"
+                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition-all cursor-pointer shadow-xs"
                       >
                         <span>Configure & Run AI Matching</span>
                         <i data-lucide="arrow-right" className="w-4 h-4"></i>
@@ -641,40 +642,40 @@
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {uploadedResumes.map((cand, idx) => (
-                        <div key={idx} className="glass-card p-4 rounded-xl border border-slate-800 hover:border-slate-700 transition-all">
+                        <div key={idx} className="bg-white p-4 rounded-xl border border-slate-200 hover:border-indigo-300 hover:shadow-sm transition-all">
                           <div className="flex items-start justify-between">
                             <div>
-                              <span className="text-xs font-bold text-white block">{cand.name}</span>
+                              <span className="text-xs font-bold text-slate-900 block">{cand.name}</span>
                               <span className="text-[11px] text-slate-400 font-mono">{cand.filename}</span>
                             </div>
-                            <span className="text-xs bg-slate-800 text-blue-300 px-2 py-0.5 rounded font-medium">
+                            <span className="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded">
                               {cand.experience_years} yrs
                             </span>
                           </div>
 
-                          <div className="mt-3 text-[11px] text-slate-300 space-y-1">
-                            <div className="flex items-center space-x-1.5 text-slate-400 truncate">
-                              <i data-lucide="mail" className="w-3 h-3 text-slate-500"></i>
+                          <div className="mt-3 text-[11px] text-slate-600 space-y-1">
+                            <div className="flex items-center space-x-1.5 text-slate-500 truncate">
+                              <i data-lucide="mail" className="w-3 h-3 text-slate-400"></i>
                               <span>{cand.email}</span>
                             </div>
-                            <div className="flex items-center space-x-1.5 text-slate-400">
-                              <i data-lucide="graduation-cap" className="w-3 h-3 text-slate-500"></i>
+                            <div className="flex items-center space-x-1.5 text-slate-500">
+                              <i data-lucide="graduation-cap" className="w-3 h-3 text-slate-400"></i>
                               <span className="truncate">{cand.education}</span>
                             </div>
                           </div>
 
-                          <div className="mt-3 pt-3 border-t border-slate-800/80">
-                            <span className="text-[10px] text-slate-400 font-medium block mb-1">
-                              Extracted Skills ({cand.skills?.length || 0})
+                          <div className="mt-3 pt-3 border-t border-slate-100">
+                            <span className="text-[10px] text-slate-500 font-bold block mb-1">
+                              Skills ({cand.skills?.length || 0})
                             </span>
                             <div className="flex flex-wrap gap-1 max-h-16 overflow-hidden">
                               {cand.skills?.slice(0, 6).map((s, i) => (
-                                <span key={i} className="text-[10px] bg-slate-800/80 text-slate-300 px-1.5 py-0.5 rounded">
+                                <span key={i} className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded font-medium">
                                   {s}
                                 </span>
                               ))}
                               {cand.skills?.length > 6 && (
-                                <span className="text-[10px] text-slate-500">+{cand.skills.length - 6} more</span>
+                                <span className="text-[10px] text-slate-400">+{cand.skills.length - 6} more</span>
                               )}
                             </div>
                           </div>
@@ -689,153 +690,153 @@
             {/* TAB 3: MATCHING & WEIGHTS CONFIGURATION */}
             {activeTab === "match" && (
               <div className="max-w-3xl mx-auto space-y-6">
-                <div className="glass-card p-6 rounded-2xl">
+                <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
                         <i data-lucide="cpu" className="w-5 h-5"></i>
                       </div>
                       <div>
-                        <h2 className="text-base font-semibold text-white">AI Matching Algorithm & Architecture</h2>
-                        <p className="text-xs text-slate-400">Hybrid scoring: Domain Skill Taxonomy + Sentence Transformers Embeddings + Seniority Evaluation</p>
+                        <h2 className="text-base font-bold text-slate-900">AI Matching Algorithm Architecture</h2>
+                        <p className="text-xs text-slate-500">Hybrid model: Domain Ontology + Sentence Transformers + Seniority Curves</p>
                       </div>
                     </div>
 
                     <button
                       onClick={() => setShowWeightsConfig(!showWeightsConfig)}
-                      className="text-xs text-blue-400 hover:text-blue-300 flex items-center space-x-1 cursor-pointer"
+                      className="text-xs text-indigo-600 hover:text-indigo-700 font-semibold flex items-center space-x-1 cursor-pointer"
                     >
                       <span>{showWeightsConfig ? "Hide Weights" : "Adjust Weights"}</span>
                       <i data-lucide="sliders" className="w-3.5 h-3.5"></i>
                     </button>
                   </div>
 
-                  {/* Architecture Overview Card */}
+                  {/* Architecture Overview Cards */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs mt-4">
-                    <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-                      <div className="flex items-center space-x-2 mb-1.5 text-blue-400 font-semibold">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                      <div className="flex items-center space-x-2 mb-1.5 text-indigo-700 font-bold">
                         <i data-lucide="brain" className="w-4 h-4"></i>
                         <span>1. Semantic Similarity (35%)</span>
                       </div>
-                      <p className="text-slate-400 text-[11px] leading-relaxed">
-                        Computes dense vector representations using <span className="text-slate-200 font-mono">SentenceTransformers all-MiniLM-L6-v2</span>. Evaluates contextual project relevance beyond exact keywords.
+                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                        Computes dense vector representations via <strong className="text-slate-900 font-mono">SentenceTransformers all-MiniLM-L6-v2</strong>. Evaluates project context beyond exact keywords.
                       </p>
                     </div>
 
-                    <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-                      <div className="flex items-center space-x-2 mb-1.5 text-emerald-400 font-semibold">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                      <div className="flex items-center space-x-2 mb-1.5 text-emerald-700 font-bold">
                         <i data-lucide="check-square" className="w-4 h-4"></i>
-                        <span>2. Skill Taxonomy Match (45%)</span>
+                        <span>2. Skills Ontology (45%)</span>
                       </div>
-                      <p className="text-slate-400 text-[11px] leading-relaxed">
-                        Matches hard requirements against high-coverage canonical skill aliases (e.g. React.js, K8s, Spring Boot, Postgres), categorizing matched, missing, and bonus skills.
+                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                        Matches hard requirements against curated skill aliases (e.g. React.js, K8s, Spring Boot, Postgres), categorizing matched, missing, and bonus skills.
                       </p>
                     </div>
 
-                    <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-                      <div className="flex items-center space-x-2 mb-1.5 text-amber-400 font-semibold">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                      <div className="flex items-center space-x-2 mb-1.5 text-amber-700 font-bold">
                         <i data-lucide="calendar" className="w-4 h-4"></i>
                         <span>3. Experience Seniority (15%)</span>
                       </div>
-                      <p className="text-slate-400 text-[11px] leading-relaxed">
-                        Compares candidate verified tenure against JD requirements using a non-linear curve (rewarding full qualifications, smoothly penalizing junior shortfalls).
+                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                        Compares candidate tenure against JD required years using a non-linear curve (rewarding full qualification, smoothly penalizing junior shortfalls).
                       </p>
                     </div>
 
-                    <div className="bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-                      <div className="flex items-center space-x-2 mb-1.5 text-purple-400 font-semibold">
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                      <div className="flex items-center space-x-2 mb-1.5 text-purple-700 font-bold">
                         <i data-lucide="graduation-cap" className="w-4 h-4"></i>
-                        <span>4. Education & Qualifications (5%)</span>
+                        <span>4. Education Fit (5%)</span>
                       </div>
-                      <p className="text-slate-400 text-[11px] leading-relaxed">
-                        Checks university degree alignment (B.Tech / BS, Master's, PhD) ensuring baseline academic and professional standard satisfaction.
+                      <p className="text-slate-600 text-[11px] leading-relaxed">
+                        Validates university degree alignment (B.Tech / BS, Master's, PhD) ensuring baseline professional and academic qualification.
                       </p>
                     </div>
                   </div>
 
-                  {/* Weights Sliders (if toggled) */}
+                  {/* Weights Adjustment Sliders */}
                   {showWeightsConfig && (
-                    <div className="mt-6 pt-5 border-t border-slate-800 space-y-4">
-                      <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Custom Weight Allocation</h4>
+                    <div className="mt-6 pt-5 border-t border-slate-200 space-y-4">
+                      <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Custom Weight Allocation</h4>
                       <div className="grid grid-cols-2 gap-4 text-xs">
-                        <div>
-                          <div className="flex justify-between text-slate-300 mb-1">
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="flex justify-between text-slate-700 mb-1 font-medium">
                             <span>Skills Weight:</span>
-                            <span className="font-mono">{Math.round(weights.skills * 100)}%</span>
+                            <span className="font-mono font-bold text-indigo-600">{Math.round(weights.skills * 100)}%</span>
                           </div>
                           <input
                             type="range" min="0.1" max="0.8" step="0.05"
                             value={weights.skills}
                             onChange={(e) => setWeights({ ...weights, skills: parseFloat(e.target.value) })}
-                            className="w-full"
+                            className="w-full accent-indigo-600"
                           />
                         </div>
-                        <div>
-                          <div className="flex justify-between text-slate-300 mb-1">
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="flex justify-between text-slate-700 mb-1 font-medium">
                             <span>Semantic Similarity:</span>
-                            <span className="font-mono">{Math.round(weights.semantic * 100)}%</span>
+                            <span className="font-mono font-bold text-indigo-600">{Math.round(weights.semantic * 100)}%</span>
                           </div>
                           <input
                             type="range" min="0.1" max="0.8" step="0.05"
                             value={weights.semantic}
                             onChange={(e) => setWeights({ ...weights, semantic: parseFloat(e.target.value) })}
-                            className="w-full"
+                            className="w-full accent-indigo-600"
                           />
                         </div>
-                        <div>
-                          <div className="flex justify-between text-slate-300 mb-1">
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="flex justify-between text-slate-700 mb-1 font-medium">
                             <span>Experience Seniority:</span>
-                            <span className="font-mono">{Math.round(weights.experience * 100)}%</span>
+                            <span className="font-mono font-bold text-indigo-600">{Math.round(weights.experience * 100)}%</span>
                           </div>
                           <input
                             type="range" min="0.05" max="0.5" step="0.05"
                             value={weights.experience}
                             onChange={(e) => setWeights({ ...weights, experience: parseFloat(e.target.value) })}
-                            className="w-full"
+                            className="w-full accent-indigo-600"
                           />
                         </div>
-                        <div>
-                          <div className="flex justify-between text-slate-300 mb-1">
-                            <span>Education Credentials:</span>
-                            <span className="font-mono">{Math.round(weights.education * 100)}%</span>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                          <div className="flex justify-between text-slate-700 mb-1 font-medium">
+                            <span>Education:</span>
+                            <span className="font-mono font-bold text-indigo-600">{Math.round(weights.education * 100)}%</span>
                           </div>
                           <input
                             type="range" min="0.0" max="0.2" step="0.05"
                             value={weights.education}
                             onChange={(e) => setWeights({ ...weights, education: parseFloat(e.target.value) })}
-                            className="w-full"
+                            className="w-full accent-indigo-600"
                           />
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {/* Ready to Match Status Box */}
-                  <div className="mt-6 p-4 rounded-xl bg-slate-900/60 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="text-xs text-slate-300 space-y-1">
+                  {/* Ready to Match Box */}
+                  <div className="mt-6 p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="text-xs text-slate-600 space-y-1">
                       <div className="flex items-center space-x-2">
-                        <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-                        <span>JD Selected: <strong className="text-white">{parsedJD?.title || "Preset Java Full Stack"}</strong></span>
+                        <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
+                        <span>Role: <strong className="text-slate-900">{parsedJD?.title || "Preset Java Full Stack"}</strong></span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        <span>Resumes Ready: <strong className="text-white">{uploadedResumes.length > 0 ? `${uploadedResumes.length} Resumes` : "12 Sample Resumes Available"}</strong></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>Candidates: <strong className="text-slate-900">{uploadedResumes.length > 0 ? `${uploadedResumes.length} Uploaded` : "12 Sample Resumes Ready"}</strong></span>
                       </div>
                     </div>
 
                     <button
                       onClick={handleRunMatching}
                       disabled={isMatching}
-                      className="px-6 py-3 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-xl text-sm font-semibold shadow-lg shadow-blue-600/30 flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap"
+                      className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs hover:shadow-md flex items-center space-x-2 transition-all cursor-pointer whitespace-nowrap"
                     >
                       {isMatching ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
-                          <span>Computing Embeddings & Match Scores...</span>
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Computing Match Scores...</span>
                         </>
                       ) : (
                         <>
-                          <i data-lucide="play-circle" className="w-5 h-5"></i>
+                          <i data-lucide="play-circle" className="w-4 h-4"></i>
                           <span>Execute AI Matching & Rank Candidates</span>
                         </>
                       )}
@@ -848,16 +849,17 @@
             {/* TAB 4: CANDIDATE RANKING DASHBOARD (MODULE 4) */}
             {activeTab === "ranking" && (
               <div className="space-y-6">
-                {/* Control / Stats Bar */}
-                <div className="glass-card p-4 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+                
+                {/* Stats & Search Bar */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
                       <i data-lucide="award" className="w-5 h-5"></i>
                     </div>
                     <div>
-                      <h2 className="text-base font-bold text-white">Candidate Ranking Dashboard</h2>
-                      <p className="text-xs text-slate-400">
-                        {rankedCandidates.length} Candidates ranked against <span className="text-blue-400 font-semibold">{parsedJD?.title || "Target Role"}</span>
+                      <h2 className="text-base font-bold text-slate-900">Candidate Ranking Dashboard</h2>
+                      <p className="text-xs text-slate-500">
+                        {rankedCandidates.length} Candidates ranked for <span className="text-indigo-600 font-semibold">{parsedJD?.title || "Target Position"}</span>
                       </p>
                     </div>
                   </div>
@@ -865,75 +867,75 @@
                   {/* Search, Filter, Export */}
                   <div className="flex items-center space-x-3">
                     <div className="relative">
-                      <i data-lucide="search" className="w-4 h-4 text-slate-500 absolute left-3 top-2.5"></i>
+                      <i data-lucide="search" className="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
                       <input
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search candidate or skill..."
-                        className="bg-slate-900 text-slate-200 text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-800 focus:outline-none focus:border-blue-500 w-56"
+                        className="bg-slate-50 text-slate-900 text-xs pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:border-indigo-500 focus:bg-white w-56 transition-colors"
                       />
                     </div>
 
                     <button
                       onClick={handleExportCSV}
-                      className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-medium border border-slate-700 flex items-center space-x-1.5 transition-colors cursor-pointer"
+                      className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-semibold border border-slate-200 shadow-2xs flex items-center space-x-1.5 transition-colors cursor-pointer"
                     >
-                      <i data-lucide="download" className="w-3.5 h-3.5"></i>
+                      <i data-lucide="download" className="w-3.5 h-3.5 text-slate-500"></i>
                       <span>Export CSV</span>
                     </button>
                   </div>
                 </div>
 
                 {/* THE RANKING TABLE (MODULE 4 SPEC) */}
-                <div className="glass-card rounded-2xl overflow-hidden border border-slate-800/80">
+                <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[11px] font-semibold border-b border-slate-800">
+                      <thead className="bg-slate-50/80 text-slate-500 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200">
                         <tr>
                           <th className="py-3.5 px-4 w-14 cursor-pointer" onClick={() => { setSortField("rank"); setSortAsc(!sortAsc); }}>
                             <div className="flex items-center space-x-1">
                               <span>Rank</span>
-                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-500"></i>
+                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-400"></i>
                             </div>
                           </th>
                           <th className="py-3.5 px-4 cursor-pointer" onClick={() => { setSortField("name"); setSortAsc(!sortAsc); }}>
                             <div className="flex items-center space-x-1">
                               <span>Candidate</span>
-                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-500"></i>
+                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-400"></i>
                             </div>
                           </th>
                           <th className="py-3.5 px-4 cursor-pointer" onClick={() => { setSortField("experience_years"); setSortAsc(!sortAsc); }}>
                             <div className="flex items-center space-x-1">
                               <span>Experience</span>
-                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-500"></i>
+                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-400"></i>
                             </div>
                           </th>
                           <th className="py-3.5 px-4 cursor-pointer" onClick={() => { setSortField("match_percentage"); setSortAsc(!sortAsc); }}>
                             <div className="flex items-center space-x-1">
                               <span>Match %</span>
-                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-500"></i>
+                              <i data-lucide="arrow-up-down" className="w-3 h-3 text-slate-400"></i>
                             </div>
                           </th>
                           <th className="py-3.5 px-4">Matched Skills</th>
                           <th className="py-3.5 px-4 text-right">Action</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800/60">
+                      <tbody className="divide-y divide-slate-100">
                         {filteredCandidates.length > 0 ? (
                           filteredCandidates.map((cand) => (
                             <tr
                               key={cand.id}
                               onClick={() => setSelectedCandidate(cand)}
-                              className="hover:bg-slate-800/40 transition-colors cursor-pointer group"
+                              className="hover:bg-slate-50/70 transition-colors cursor-pointer group"
                             >
                               {/* Rank */}
-                              <td className="py-4 px-4 font-bold text-slate-300">
-                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono ${
-                                  cand.rank === 1 ? "bg-amber-500/20 text-amber-400 border border-amber-500/30" :
-                                  cand.rank === 2 ? "bg-slate-400/20 text-slate-300 border border-slate-400/30" :
-                                  cand.rank === 3 ? "bg-amber-700/20 text-amber-600 border border-amber-700/30" :
-                                  "bg-slate-900 text-slate-500"
+                              <td className="py-4 px-4 font-bold text-slate-700">
+                                <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold ${
+                                  cand.rank === 1 ? "bg-amber-100 text-amber-800 border border-amber-300" :
+                                  cand.rank === 2 ? "bg-slate-200 text-slate-700 border border-slate-300" :
+                                  cand.rank === 3 ? "bg-amber-50 text-amber-700 border border-amber-200" :
+                                  "bg-slate-100 text-slate-600"
                                 }`}>
                                   #{cand.rank}
                                 </span>
@@ -941,7 +943,7 @@
 
                               {/* Candidate Info */}
                               <td className="py-4 px-4">
-                                <div className="font-semibold text-white group-hover:text-blue-400 transition-colors">
+                                <div className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
                                   {cand.name}
                                 </div>
                                 <div className="text-[11px] text-slate-500 flex items-center space-x-2 mt-0.5">
@@ -952,13 +954,13 @@
                               </td>
 
                               {/* Experience */}
-                              <td className="py-4 px-4 text-slate-300 font-medium whitespace-nowrap">
+                              <td className="py-4 px-4 text-slate-700 font-medium whitespace-nowrap">
                                 <div className="flex items-center space-x-1.5">
-                                  <span>{cand.experience_display}</span>
+                                  <span className="font-semibold">{cand.experience_display}</span>
                                   {cand.experience_years >= (parsedJD?.min_experience_years || 3) ? (
-                                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 px-1.5 py-0.2 rounded">Meets req</span>
+                                    <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-1.5 py-0.2 rounded font-semibold">Meets req</span>
                                   ) : (
-                                    <span className="text-[10px] bg-amber-500/10 text-amber-400 px-1.5 py-0.2 rounded">Junior</span>
+                                    <span className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded font-semibold">Junior</span>
                                   )}
                                 </div>
                               </td>
@@ -969,11 +971,11 @@
                                   <span className={`text-xs font-bold px-2.5 py-1 rounded-md ${getScoreBadgeClass(cand.match_percentage)}`}>
                                     {cand.match_percentage}%
                                   </span>
-                                  <div className="w-16 bg-slate-800 rounded-full h-1.5 hidden sm:block overflow-hidden">
+                                  <div className="w-16 bg-slate-100 rounded-full h-1.5 hidden sm:block overflow-hidden">
                                     <div
                                       className={`h-full rounded-full ${
                                         cand.match_percentage >= 80 ? "bg-emerald-500" :
-                                        cand.match_percentage >= 65 ? "bg-blue-500" :
+                                        cand.match_percentage >= 65 ? "bg-indigo-600" :
                                         cand.match_percentage >= 50 ? "bg-amber-500" : "bg-rose-500"
                                       }`}
                                       style={{ width: `${cand.match_percentage}%` }}
@@ -986,17 +988,17 @@
                               <td className="py-4 px-4">
                                 <div className="flex flex-wrap gap-1 max-w-md">
                                   {cand.matched_skills.slice(0, 4).map((skill, sIdx) => (
-                                    <span key={sIdx} className="bg-emerald-950/40 text-emerald-300 border border-emerald-800/40 px-2 py-0.5 rounded text-[11px] font-medium">
+                                    <span key={sIdx} className="bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded text-[11px] font-semibold">
                                       {skill}
                                     </span>
                                   ))}
                                   {cand.matched_skills.length > 4 && (
-                                    <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded text-[11px]">
+                                    <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[11px] font-medium">
                                       +{cand.matched_skills.length - 4} more
                                     </span>
                                   )}
                                   {cand.matched_skills.length === 0 && (
-                                    <span className="text-slate-500 italic text-[11px]">No direct core skill matches</span>
+                                    <span className="text-slate-400 italic text-[11px]">No direct core skill matches</span>
                                   )}
                                 </div>
                               </td>
@@ -1008,7 +1010,7 @@
                                     e.stopPropagation();
                                     setSelectedCandidate(cand);
                                   }}
-                                  className="px-3 py-1.5 bg-blue-600/20 hover:bg-blue-600 text-blue-300 hover:text-white rounded-lg text-xs font-medium border border-blue-500/30 transition-all cursor-pointer inline-flex items-center space-x-1"
+                                  className="px-3 py-1.5 bg-white hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 rounded-lg text-xs font-semibold border border-slate-200 shadow-2xs transition-all cursor-pointer inline-flex items-center space-x-1"
                                 >
                                   <span>View Analysis</span>
                                   <i data-lucide="chevron-right" className="w-3.5 h-3.5"></i>
@@ -1018,8 +1020,8 @@
                           ))
                         ) : (
                           <tr>
-                            <td colSpan="6" className="py-12 text-center text-slate-500">
-                              <i data-lucide="inbox" className="w-8 h-8 mx-auto mb-2 text-slate-600"></i>
+                            <td colSpan="6" className="py-12 text-center text-slate-400">
+                              <i data-lucide="inbox" className="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
                               <p>No candidates ranked yet. Run matching or adjust filters.</p>
                             </td>
                           </tr>
@@ -1031,28 +1033,28 @@
               </div>
             )}
 
-            {/* CANDIDATE LEVEL DEEP-DIVE ANALYSIS DRAWER / MODAL (MODULE 5 SPEC) */}
+            {/* CANDIDATE LEVEL DEEP-DIVE ANALYSIS MODAL (MODULE 5) */}
             {selectedCandidate && (
-              <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-                <div className="glass-card bg-slate-900 border border-slate-700/80 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+                <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                   
                   {/* Modal Header */}
-                  <div className="p-6 border-b border-slate-800 flex items-start justify-between bg-slate-950/60">
+                  <div className="p-6 border-b border-slate-200 flex items-start justify-between bg-slate-50/60">
                     <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-lg flex items-center justify-center shadow-md">
+                      <div className="w-12 h-12 rounded-2xl bg-indigo-600 text-white font-bold text-lg flex items-center justify-center shadow-xs">
                         {selectedCandidate.name.charAt(0)}
                       </div>
                       <div>
                         <div className="flex items-center space-x-3">
-                          <h3 className="text-xl font-bold text-white">{selectedCandidate.name}</h3>
-                          <span className="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-700">
+                          <h3 className="text-xl font-bold text-slate-900">{selectedCandidate.name}</h3>
+                          <span className="text-xs font-mono bg-white text-slate-700 px-2.5 py-0.5 rounded-full border border-slate-200 font-bold shadow-2xs">
                             Rank #{selectedCandidate.rank}
                           </span>
                           <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${getScoreBadgeClass(selectedCandidate.match_percentage)}`}>
                             {selectedCandidate.match_percentage}% Overall Match
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1 flex items-center space-x-3">
+                        <p className="text-xs text-slate-500 mt-1 flex items-center space-x-3">
                           <span>{selectedCandidate.filename}</span>
                           <span>•</span>
                           <span>{selectedCandidate.email}</span>
@@ -1064,43 +1066,43 @@
 
                     <button
                       onClick={() => setSelectedCandidate(null)}
-                      className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+                      className="w-8 h-8 rounded-lg bg-white hover:bg-slate-100 text-slate-500 hover:text-slate-800 border border-slate-200 flex items-center justify-center transition-colors cursor-pointer shadow-2xs"
                     >
                       <i data-lucide="x" className="w-5 h-5"></i>
                     </button>
                   </div>
 
-                  {/* Modal Tabs */}
-                  <div className="flex border-b border-slate-800 px-6 bg-slate-950/30 text-xs">
+                  {/* Modal Tab Bar */}
+                  <div className="flex border-b border-slate-200 px-6 bg-white text-xs">
                     <button
                       onClick={() => setCandidateModalTab("analysis")}
-                      className={`py-3 px-4 font-semibold border-b-2 cursor-pointer transition-colors ${
+                      className={`py-3 px-4 font-bold border-b-2 cursor-pointer transition-colors ${
                         candidateModalTab === "analysis"
-                          ? "border-blue-500 text-blue-400"
-                          : "border-transparent text-slate-400 hover:text-slate-200"
+                          ? "border-indigo-600 text-indigo-600"
+                          : "border-transparent text-slate-500 hover:text-slate-800"
                       }`}
                     >
                       AI Match Analysis & Reasons
                     </button>
                     <button
                       onClick={() => setCandidateModalTab("skills")}
-                      className={`py-3 px-4 font-semibold border-b-2 cursor-pointer transition-colors ${
+                      className={`py-3 px-4 font-bold border-b-2 cursor-pointer transition-colors ${
                         candidateModalTab === "skills"
-                          ? "border-blue-500 text-blue-400"
-                          : "border-transparent text-slate-400 hover:text-slate-200"
+                          ? "border-indigo-600 text-indigo-600"
+                          : "border-transparent text-slate-500 hover:text-slate-800"
                       }`}
                     >
                       Skills Comparison Matrix
                     </button>
                     <button
                       onClick={() => setCandidateModalTab("resume")}
-                      className={`py-3 px-4 font-semibold border-b-2 cursor-pointer transition-colors ${
+                      className={`py-3 px-4 font-bold border-b-2 cursor-pointer transition-colors ${
                         candidateModalTab === "resume"
-                          ? "border-blue-500 text-blue-400"
-                          : "border-transparent text-slate-400 hover:text-slate-200"
+                          ? "border-indigo-600 text-indigo-600"
+                          : "border-transparent text-slate-500 hover:text-slate-800"
                       }`}
                     >
-                      Parsed Resume Text
+                      Extracted Resume Text
                     </button>
                   </div>
 
@@ -1109,55 +1111,55 @@
                     
                     {candidateModalTab === "analysis" && (
                       <>
-                        {/* Score Breakdown Cards */}
+                        {/* Score Metric Cards */}
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
-                            <span className="text-slate-400 text-[10px] uppercase font-semibold block mb-1">Skill Match</span>
-                            <span className="text-lg font-bold text-emerald-400">
+                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                            <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">Skill Match</span>
+                            <span className="text-xl font-extrabold text-emerald-700">
                               {selectedCandidate.explanation?.metrics_breakdown?.skill_match_percentage}%
                             </span>
-                            <span className="text-[10px] text-slate-500 block mt-0.5">Weight: 45%</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Weight: 45%</span>
                           </div>
 
-                          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
-                            <span className="text-slate-400 text-[10px] uppercase font-semibold block mb-1">Semantic Relevance</span>
-                            <span className="text-lg font-bold text-blue-400">
+                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                            <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">Semantic Fit</span>
+                            <span className="text-xl font-extrabold text-indigo-600">
                               {selectedCandidate.explanation?.metrics_breakdown?.semantic_similarity_percentage}%
                             </span>
-                            <span className="text-[10px] text-slate-500 block mt-0.5">SentenceTransformers (35%)</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">SentenceTransformers (35%)</span>
                           </div>
 
-                          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
-                            <span className="text-slate-400 text-[10px] uppercase font-semibold block mb-1">Experience Alignment</span>
-                            <span className="text-lg font-bold text-amber-400">
+                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                            <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">Experience</span>
+                            <span className="text-xl font-extrabold text-amber-700">
                               {selectedCandidate.explanation?.metrics_breakdown?.experience_alignment_percentage}%
                             </span>
-                            <span className="text-[10px] text-slate-500 block mt-0.5">Weight: 15%</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Weight: 15%</span>
                           </div>
 
-                          <div className="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80">
-                            <span className="text-slate-400 text-[10px] uppercase font-semibold block mb-1">Education Fit</span>
-                            <span className="text-lg font-bold text-purple-400">
+                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80 shadow-2xs">
+                            <span className="text-slate-500 text-[10px] uppercase font-bold block mb-1">Education</span>
+                            <span className="text-xl font-extrabold text-purple-700">
                               {selectedCandidate.explanation?.metrics_breakdown?.education_score}%
                             </span>
-                            <span className="text-[10px] text-slate-500 block mt-0.5">Weight: 5%</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Weight: 5%</span>
                           </div>
                         </div>
 
                         {/* Experience Comparison Bar */}
-                        <div className="bg-slate-950/40 p-4 rounded-xl border border-slate-800">
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
                           <div className="flex justify-between items-center mb-2">
-                            <span className="text-slate-300 font-semibold text-xs flex items-center space-x-1.5">
-                              <i data-lucide="clock" className="w-3.5 h-3.5 text-blue-400"></i>
+                            <span className="text-slate-800 font-bold text-xs flex items-center space-x-1.5">
+                              <i data-lucide="clock" className="w-3.5 h-3.5 text-indigo-600"></i>
                               <span>Experience Comparison</span>
                             </span>
-                            <span className="text-slate-400 text-[11px]">
-                              Candidate: <strong className="text-white">{selectedCandidate.experience_display}</strong> vs Required: <strong className="text-blue-400">{parsedJD?.min_experience_years || 3}+ Years</strong>
+                            <span className="text-slate-500 text-[11px]">
+                              Candidate: <strong className="text-slate-900">{selectedCandidate.experience_display}</strong> vs Required: <strong className="text-indigo-600">{parsedJD?.min_experience_years || 3}+ Years</strong>
                             </span>
                           </div>
-                          <div className="w-full bg-slate-800 rounded-full h-3 relative overflow-hidden">
+                          <div className="w-full bg-slate-200 rounded-full h-2.5 relative overflow-hidden">
                             <div
-                              className="h-full bg-blue-500 rounded-full"
+                              className="h-full bg-indigo-600 rounded-full"
                               style={{
                                 width: `${Math.min(100, (selectedCandidate.experience_years / Math.max(1, (parsedJD?.min_experience_years || 3) * 1.5)) * 100)}%`
                               }}
@@ -1167,24 +1169,24 @@
 
                         {/* Summary & Reasoning Behind Score (Module 5 Requirement) */}
                         <div className="space-y-4">
-                          <div className="bg-blue-950/20 border border-blue-900/40 p-4 rounded-xl">
-                            <div className="flex items-center space-x-2 text-blue-300 font-semibold mb-1 text-xs">
+                          <div className="bg-indigo-50/50 border border-indigo-200/80 p-4 rounded-xl">
+                            <div className="flex items-center space-x-2 text-indigo-800 font-bold mb-1 text-xs">
                               <i data-lucide="info" className="w-4 h-4"></i>
                               <span>Executive Evaluation Summary</span>
                             </div>
-                            <p className="text-slate-200 text-xs leading-relaxed">{selectedCandidate.explanation?.summary}</p>
+                            <p className="text-slate-700 text-xs leading-relaxed">{selectedCandidate.explanation?.summary}</p>
                           </div>
 
                           {/* Strengths */}
-                          <div className="bg-emerald-950/20 border border-emerald-900/40 p-4 rounded-xl">
-                            <div className="flex items-center space-x-2 text-emerald-300 font-semibold mb-2 text-xs">
-                              <i data-lucide="check-circle" className="w-4 h-4"></i>
+                          <div className="bg-emerald-50/50 border border-emerald-200/80 p-4 rounded-xl">
+                            <div className="flex items-center space-x-2 text-emerald-800 font-bold mb-2 text-xs">
+                              <i data-lucide="check-circle" className="w-4 h-4 text-emerald-600"></i>
                               <span>Key Matching Strengths</span>
                             </div>
                             <ul className="space-y-1.5">
                               {selectedCandidate.explanation?.strengths.map((str, idx) => (
-                                <li key={idx} className="flex items-start space-x-2 text-slate-300 text-xs">
-                                  <span className="text-emerald-400 font-bold">•</span>
+                                <li key={idx} className="flex items-start space-x-2 text-slate-700 text-xs">
+                                  <span className="text-emerald-600 font-bold">•</span>
                                   <span>{str}</span>
                                 </li>
                               ))}
@@ -1192,15 +1194,15 @@
                           </div>
 
                           {/* Gaps */}
-                          <div className="bg-amber-950/20 border border-amber-900/40 p-4 rounded-xl">
-                            <div className="flex items-center space-x-2 text-amber-300 font-semibold mb-2 text-xs">
-                              <i data-lucide="alert-triangle" className="w-4 h-4"></i>
+                          <div className="bg-amber-50/50 border border-amber-200/80 p-4 rounded-xl">
+                            <div className="flex items-center space-x-2 text-amber-800 font-bold mb-2 text-xs">
+                              <i data-lucide="alert-triangle" className="w-4 h-4 text-amber-600"></i>
                               <span>Identified Gaps & Missing Skills</span>
                             </div>
                             <ul className="space-y-1.5">
                               {selectedCandidate.explanation?.gaps.map((gap, idx) => (
-                                <li key={idx} className="flex items-start space-x-2 text-slate-300 text-xs">
-                                  <span className="text-amber-400 font-bold">•</span>
+                                <li key={idx} className="flex items-start space-x-2 text-slate-700 text-xs">
+                                  <span className="text-amber-600 font-bold">•</span>
                                   <span>{gap}</span>
                                 </li>
                               ))}
@@ -1208,15 +1210,15 @@
                           </div>
 
                           {/* Suggested Interview Probes */}
-                          <div className="bg-purple-950/20 border border-purple-900/40 p-4 rounded-xl">
-                            <div className="flex items-center space-x-2 text-purple-300 font-semibold mb-2 text-xs">
-                              <i data-lucide="help-circle" className="w-4 h-4"></i>
+                          <div className="bg-purple-50/50 border border-purple-200/80 p-4 rounded-xl">
+                            <div className="flex items-center space-x-2 text-purple-800 font-bold mb-2 text-xs">
+                              <i data-lucide="help-circle" className="w-4 h-4 text-purple-600"></i>
                               <span>Recommended Technical Interview Focus</span>
                             </div>
                             <ul className="space-y-1.5">
                               {selectedCandidate.explanation?.interview_focus.map((q, idx) => (
-                                <li key={idx} className="flex items-start space-x-2 text-slate-300 text-xs">
-                                  <span className="text-purple-400 font-bold">•</span>
+                                <li key={idx} className="flex items-start space-x-2 text-slate-700 text-xs">
+                                  <span className="text-purple-600 font-bold">•</span>
                                   <span>{q}</span>
                                 </li>
                               ))}
@@ -1230,49 +1232,49 @@
                       <div className="space-y-5">
                         {/* Matched Skills */}
                         <div>
-                          <span className="text-emerald-400 font-semibold text-xs flex items-center space-x-1.5 mb-2">
-                            <i data-lucide="check" className="w-4 h-4"></i>
+                          <span className="text-emerald-800 font-bold text-xs flex items-center space-x-1.5 mb-2">
+                            <i data-lucide="check" className="w-4 h-4 text-emerald-600"></i>
                             <span>Matched Required Skills ({selectedCandidate.matched_skills.length})</span>
                           </span>
                           <div className="flex flex-wrap gap-2">
                             {selectedCandidate.matched_skills.map((s, idx) => (
-                              <span key={idx} className="bg-emerald-950/50 text-emerald-300 border border-emerald-800/50 px-3 py-1 rounded-lg text-xs font-medium">
+                              <span key={idx} className="bg-emerald-50 text-emerald-700 border border-emerald-200 px-3 py-1 rounded-lg text-xs font-semibold">
                                 ✓ {s}
                               </span>
                             ))}
                             {selectedCandidate.matched_skills.length === 0 && (
-                              <span className="text-slate-500 italic">No direct matches.</span>
+                              <span className="text-slate-400 italic">No direct matches.</span>
                             )}
                           </div>
                         </div>
 
                         {/* Missing Skills */}
                         <div>
-                          <span className="text-rose-400 font-semibold text-xs flex items-center space-x-1.5 mb-2">
-                            <i data-lucide="x" className="w-4 h-4"></i>
+                          <span className="text-rose-800 font-bold text-xs flex items-center space-x-1.5 mb-2">
+                            <i data-lucide="x" className="w-4 h-4 text-rose-600"></i>
                             <span>Missing Required Skills ({selectedCandidate.missing_skills.length})</span>
                           </span>
                           <div className="flex flex-wrap gap-2">
                             {selectedCandidate.missing_skills.map((s, idx) => (
-                              <span key={idx} className="bg-rose-950/50 text-rose-300 border border-rose-800/50 px-3 py-1 rounded-lg text-xs font-medium">
+                              <span key={idx} className="bg-rose-50 text-rose-700 border border-rose-200 px-3 py-1 rounded-lg text-xs font-semibold">
                                 ✗ {s}
                               </span>
                             ))}
                             {selectedCandidate.missing_skills.length === 0 && (
-                              <span className="text-emerald-400">All required skills present!</span>
+                              <span className="text-emerald-700 font-semibold">All required skills present!</span>
                             )}
                           </div>
                         </div>
 
-                        {/* Bonus / Additional Skills */}
+                        {/* Bonus Skills */}
                         <div>
-                          <span className="text-purple-400 font-semibold text-xs flex items-center space-x-1.5 mb-2">
-                            <i data-lucide="plus-circle" className="w-4 h-4"></i>
-                            <span>Candidate Additional Skills ({selectedCandidate.bonus_skills.length})</span>
+                          <span className="text-purple-800 font-bold text-xs flex items-center space-x-1.5 mb-2">
+                            <i data-lucide="plus-circle" className="w-4 h-4 text-purple-600"></i>
+                            <span>Additional / Bonus Skills ({selectedCandidate.bonus_skills.length})</span>
                           </span>
                           <div className="flex flex-wrap gap-2">
                             {selectedCandidate.bonus_skills.map((s, idx) => (
-                              <span key={idx} className="bg-purple-950/40 text-purple-300 border border-purple-800/40 px-3 py-1 rounded-lg text-xs">
+                              <span key={idx} className="bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1 rounded-lg text-xs font-medium">
                                 + {s}
                               </span>
                             ))}
@@ -1282,7 +1284,7 @@
                     )}
 
                     {candidateModalTab === "resume" && (
-                      <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs font-mono text-slate-300 whitespace-pre-wrap max-h-96 overflow-y-auto custom-scrollbar">
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-xs font-mono text-slate-800 whitespace-pre-wrap max-h-96 overflow-y-auto custom-scrollbar leading-relaxed">
                         {selectedCandidate.raw_text || "No raw text available."}
                       </div>
                     )}
@@ -1290,11 +1292,11 @@
                   </div>
 
                   {/* Modal Footer */}
-                  <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between text-xs">
-                    <span className="text-slate-400">Candidate ID: {selectedCandidate.id}</span>
+                  <div className="p-4 border-t border-slate-200 bg-slate-50/80 flex items-center justify-between text-xs">
+                    <span className="text-slate-500 font-mono">Candidate ID: {selectedCandidate.id}</span>
                     <button
                       onClick={() => setSelectedCandidate(null)}
-                      className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-medium cursor-pointer"
+                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg font-semibold cursor-pointer shadow-2xs"
                     >
                       Close Analysis
                     </button>
@@ -1306,9 +1308,9 @@
 
           </main>
 
-          {/* Footer */}
-          <footer className="mt-auto border-t border-slate-800/80 bg-slate-950/60 py-4 px-6 text-center text-xs text-slate-500">
-            AI-Based Resume Matching & Candidate Ranking System • Built with FastAPI, Sentence Transformers, and React
+          {/* Clean Footer */}
+          <footer className="mt-auto border-t border-slate-200 bg-white py-4 px-6 text-center text-xs text-slate-500">
+            MatchWise AI • Professional AI-Based Resume Matching & Candidate Ranking Platform
           </footer>
         </div>
       );
