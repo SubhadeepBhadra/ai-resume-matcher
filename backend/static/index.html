@@ -448,10 +448,6 @@
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
             Analyze & Match All
           </button>
-          <span id="system-status-pill" class="status-pill online">
-            <span class="status-dot"></span>
-            <span id="system-status-text">SentenceTransformer Loaded</span>
-          </span>
         </div>
       </div>
     </header>
@@ -992,7 +988,7 @@
         const hRes = await fetch('/api/health');
         if (hRes.ok) {
           const hData = await hRes.json();
-          document.getElementById('system-status-text').textContent = hData.ai_nlp_engine || "AI Model Online";
+          console.log("Health check status:", hData.status, hData.ai_nlp_engine);
         }
       } catch (e) {
         console.warn("Health check error:", e);
