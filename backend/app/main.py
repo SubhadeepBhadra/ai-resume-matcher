@@ -71,7 +71,8 @@ class JDRequest(BaseModel):
 
 
 class MatchRequest(BaseModel):
-    jd: Dict[str, Any]
+    jd: Optional[Dict[str, Any]] = None
+    jd_text: Optional[str] = None
     resumes: Optional[List[Dict[str, Any]]] = None
     weights: Optional[Dict[str, float]] = None
 
@@ -179,8 +180,13 @@ def match_candidates(request: MatchRequest):
 
     # Validate JD
     jd_data = request.jd
-    if not jd_data or not jd_data.get("raw_text"):
-        # Re-parse if only raw text or minimal info provided
+    if not jd_data:
+        raw = request.jd_text or ""
+        if raw:
+            jd_data = parse_job_description(raw)
+        else:
+            jd_data = parse_job_description(SAMPLE_JDS[0]["text"])
+    elif not jd_data.get("raw_text") and not jd_data.get("required_skills"):
         raw = jd_data.get("raw_text") or jd_data.get("text") or ""
         if raw:
             jd_data = parse_job_description(raw)

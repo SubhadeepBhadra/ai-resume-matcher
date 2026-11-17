@@ -1218,6 +1218,7 @@
 
       try {
         const payload = {
+          jd: state.parsedJD || { text: jdText, raw_text: jdText },
           jd_text: jdText,
           resumes: state.resumes,
           weights: state.weights
