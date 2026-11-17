@@ -1,5 +1,7 @@
 # 🚀 AI-Based Resume Matching & Candidate Ranking System
 
+> 🌐 **Live Deployed Application:** [MatchWise AI — Resume Matching & Candidate Ranking · Streamlit](https://ai-resume-matcher-bhadra.streamlit.app/)
+
 An intelligent, explainable, and production-ready recruitment AI platform that compares candidate resumes against Job Descriptions (JDs) using **Sentence Transformers (all-MiniLM-L6-v2)** embeddings, canonical **Skill Ontology Matching**, and **Experience Seniority Evaluation**.
 
 ---
@@ -201,8 +203,12 @@ python run.py
 
 ---
 
-## ☁️ Deploying on Streamlit Community Cloud (One-Click)
+## ☁️ Live Cloud Deployment (Streamlit Community Cloud)
 
+The application is deployed live and publicly accessible:
+👉 **[MatchWise AI — Resume Matching & Candidate Ranking · Streamlit](https://ai-resume-matcher-bhadra.streamlit.app/)**
+
+### To Re-deploy or Fork on Streamlit Community Cloud:
 1. Go to **[share.streamlit.io](https://share.streamlit.io)** and log in with your GitHub account (**SubhadeepBhadra**).
 2. Click **"New app"**.
 3. Fill in the repository details:
