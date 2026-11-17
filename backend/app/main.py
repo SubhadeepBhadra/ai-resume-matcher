@@ -36,6 +36,34 @@ app.add_middleware(
 
 SAMPLE_RESUMES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../sample_resumes"))
 
+# In-memory cache for parsed sample resumes for sub-millisecond instant responses
+_CACHED_SAMPLE_RESUMES = []
+
+
+def _get_or_load_sample_resumes() -> List[Dict[str, Any]]:
+    """Loads and caches sample resumes in memory."""
+    global _CACHED_SAMPLE_RESUMES
+    if _CACHED_SAMPLE_RESUMES:
+        return _CACHED_SAMPLE_RESUMES
+
+    files = sorted(glob.glob(os.path.join(SAMPLE_RESUMES_DIR, "*.*")))
+    if not files:
+        generate_all_samples(SAMPLE_RESUMES_DIR)
+        files = sorted(glob.glob(os.path.join(SAMPLE_RESUMES_DIR, "*.*")))
+
+    resumes = []
+    for filepath in files:
+        filename = os.path.basename(filepath)
+        try:
+            with open(filepath, "rb") as f:
+                data = parse_resume(f.read(), filename)
+                resumes.append(data)
+        except Exception as e:
+            print(f"Error parsing sample resume {filename}: {e}")
+
+    _CACHED_SAMPLE_RESUMES = resumes
+    return resumes
+
 
 class JDRequest(BaseModel):
     text: str
@@ -44,7 +72,7 @@ class JDRequest(BaseModel):
 
 class MatchRequest(BaseModel):
     jd: Dict[str, Any]
-    resumes: List[Dict[str, Any]]
+    resumes: Optional[List[Dict[str, Any]]] = None
     weights: Optional[Dict[str, float]] = None
 
 
@@ -63,6 +91,16 @@ def health_check():
 def get_sample_jds():
     """Returns pre-configured realistic Job Descriptions for instant testing."""
     return {"job_descriptions": SAMPLE_JDS}
+
+
+@app.get("/api/samples/resumes")
+def get_sample_resumes():
+    """Returns the 12 pre-parsed sample resumes."""
+    resumes = _get_or_load_sample_resumes()
+    return {
+        "count": len(resumes),
+        "resumes": resumes
+    }
 
 
 @app.post("/api/jd/analyze")
@@ -131,16 +169,31 @@ def match_candidates(request: MatchRequest):
     Computes overall score (0-100), matched/missing skills, experience evaluation,
     semantic similarity, and ranked dashboard table.
     """
-    if not request.resumes:
-        raise HTTPException(status_code=400, detail="No resumes provided to match.")
+    resumes_to_match = request.resumes
+    if not resumes_to_match:
+        # Fallback to pre-loaded sample resumes
+        resumes_to_match = _get_or_load_sample_resumes()
 
-    ranked = match_resumes_to_jd(request.jd, request.resumes, request.weights)
+    if not resumes_to_match:
+        raise HTTPException(status_code=400, detail="No resumes available to match.")
+
+    # Validate JD
+    jd_data = request.jd
+    if not jd_data or not jd_data.get("raw_text"):
+        # Re-parse if only raw text or minimal info provided
+        raw = jd_data.get("raw_text") or jd_data.get("text") or ""
+        if raw:
+            jd_data = parse_job_description(raw)
+        else:
+            jd_data = parse_job_description(SAMPLE_JDS[0]["text"])
+
+    ranked = match_resumes_to_jd(jd_data, resumes_to_match, request.weights)
 
     return {
         "total_candidates": len(ranked),
-        "job_title": request.jd.get("title", "Target Role"),
-        "min_experience_required": request.jd.get("min_experience_years", 0),
-        "required_skills_count": len(request.jd.get("required_skills", [])),
+        "job_title": jd_data.get("title", "Target Role"),
+        "min_experience_required": jd_data.get("min_experience_years", 0),
+        "required_skills_count": len(jd_data.get("required_skills", [])),
         "ranking": ranked
     }
 
@@ -151,25 +204,9 @@ def load_preloaded_dataset(jd_id: Optional[str] = "jd-1"):
     One-click instant demonstration endpoint.
     Parses the 12 synthetic resumes and selected sample JD, running full AI match.
     """
-    # 1. Get JD
     selected_jd = next((jd for jd in SAMPLE_JDS if jd["id"] == jd_id), SAMPLE_JDS[0])
     parsed_jd = parse_job_description(selected_jd["text"])
-
-    # 2. Parse all sample resumes
-    files = sorted(glob.glob(os.path.join(SAMPLE_RESUMES_DIR, "*.*")))
-    if not files:
-        # Generate them if missing
-        generate_all_samples(SAMPLE_RESUMES_DIR)
-        files = sorted(glob.glob(os.path.join(SAMPLE_RESUMES_DIR, "*.*")))
-
-    resumes = []
-    for filepath in files:
-        filename = os.path.basename(filepath)
-        with open(filepath, "rb") as f:
-            data = parse_resume(f.read(), filename)
-            resumes.append(data)
-
-    # 3. Match
+    resumes = _get_or_load_sample_resumes()
     ranked = match_resumes_to_jd(parsed_jd, resumes)
 
     return {
