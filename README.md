@@ -164,7 +164,7 @@ Let $R = \frac{E_{\text{cand}}}{E_{\text{req}}}$:
 
 ### 1. Clone & Set Up Virtual Environment
 ```bash
-git clone https://github.com/<your-username>/ai-resume-matcher.git
+git clone https://github.com/SubhadeepBhadra/ai-resume-matcher.git
 cd ai-resume-matcher
 
 # Create virtual environment
@@ -182,16 +182,35 @@ pip install -r requirements.txt
 ```
 *(Or if using `uv`: `uv pip install -r requirements.txt`)*
 
-### 3. Launch Application
+### 3. Launching the Application
+
+You can run the platform using **Streamlit** (interactive dashboard) or **FastAPI** (REST API + standalone client):
+
+#### Option A: Run via Streamlit (Recommended for Interactive Dashboard & Cloud Deployment)
+```bash
+streamlit run streamlit_app.py
+```
+Opens automatically in your browser at: **[http://localhost:8501](http://localhost:8501)**
+
+#### Option B: Run via FastAPI Backend (REST API + Standalone Web App)
 ```bash
 python run.py
 ```
-
-Open your browser to:
 - **Web Dashboard:** [http://localhost:8000](http://localhost:8000)
 - **Interactive Swagger API Docs:** [http://localhost:8000/docs](http://localhost:8000/docs)
 
-*(Click the **"Load 12 Sample Resumes & Demo"** button in the header to instantly populate the dashboard and inspect ranking results!)*
+---
+
+## ☁️ Deploying on Streamlit Community Cloud (One-Click)
+
+1. Go to **[share.streamlit.io](https://share.streamlit.io)** and log in with your GitHub account (**SubhadeepBhadra**).
+2. Click **"New app"**.
+3. Fill in the repository details:
+   - **Repository:** `SubhadeepBhadra/ai-resume-matcher`
+   - **Branch:** `main`
+   - **Main file path:** `streamlit_app.py`
+4. Click **"Deploy!"**
+5. Your app will automatically build and become live with a shareable public URL!
 
 ---
 
